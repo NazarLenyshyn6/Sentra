@@ -19,6 +19,7 @@ from typing_extensions import override
 from ..base import PromptRegistry
 from prompt_engine.components.eda import DataIngestionComponent
 
+
 class DataIngestionPromptRegistry(PromptRegistry[DataIngestionComponent]):
     """ 
     Prompt registry for EDA strategies related to data ingestion.
