@@ -41,5 +41,20 @@ class DataIngestionPromptRegistry(PromptRegistry[DataIngestionComponent]):
 
 DataIngestionPromptRegistry.register_prompt(
     strategy=DataIngestionComponent.CSV,
-    prompt="..."
+    prompt="DataIngestion.CSV: placeholder"
+)
+
+DataIngestionPromptRegistry.register_prompt(
+    strategy=DataIngestionComponent.EXCEL,
+    prompt="DataIngestion.EXCEL: placeholder"
+)
+
+DataIngestionPromptRegistry.register_prompt(
+    strategy=DataIngestionComponent.JSON,
+    prompt="DataIngestion.JSON: placeholder"
+)
+
+DataIngestionPromptRegistry.register_prompt(
+    strategy=DataIngestionComponent.PARQUET,
+    prompt="DataIngestion.PARQUET: placeholder"
 )

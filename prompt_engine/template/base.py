@@ -12,12 +12,11 @@ Design Goals:
 - Maintain strict ordering of modular prompt components
 - Enforce type-safe alignment between strategy and component
 - Facilitate composable, explainable, step-based prompt generation
-- Support fault-tolerant or strict generation modes (`skip_missing`)
 - Allow subclasses to define their own default component ordering
 
 """
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import List, Type
 from enum import Enum
 
@@ -70,46 +69,41 @@ class PromptTemplate(ABC):
     @classmethod
     def get_prompt(cls, 
                    strategies: List[Enum], 
-                   skip_missing: bool = False
                    ) -> str:
         """
         Generates a composed, multi-step prompt from the configured components and strategies.
 
         Each component corresponds to a step, and the prompt for the corresponding strategy
-        is fetched and appended. If `skip_missing` is True, missing prompts will be silently skipped.
+        is fetched and appended
 
         Args:
             strategies: A list of Enum values corresponding to strategies
                                      for each registered component (must match order).
-            skip_missing: Whether to skip components with no registered prompt.
 
         Raises:
             ValueError: If the number of strategies does not match number of components,
-                        or if a prompt is missing and `skip_missing=False`.
+                        or if a prompt is missing.
             TypeError: If any strategy does not match the expected Enum type of its component.
             
         Returns:
             str: The final composed multi-step prompt string.
         """
         prompt = []
-        components = cls.view_components_order()
+        components = cls.get_components_order()
         
         if len(components) != len(strategies):
             raise ValueError(f"Expected {len(components)} strategies, got {len(strategies)}.")
         
-        for step, (component, strategy) in enumerate(zip(components, strategies), start=1):
+        for component, strategy in zip(components, strategies):
             expected_enum = component.get_component_type()
             if not isinstance(strategy, expected_enum):
                 raise TypeError(
-                    f"Strategy {strategy} is not of expected type {expected_enum.__name__} "
-                    f"for component {component.__name__}."
+                    f"{strategy} is unexpected strategy for {expected_enum.__name__}"
                 )
             if not component.has_prompt(strategy):
-                if skip_missing:
-                    continue
                 raise ValueError(
                     f"No prompt registered for strategy {strategy.name} in component {component.__name__}."
                 )
-            prompt.append(f"Step {step} ({component.__name__}):\n{component.get_prompt(strategy)}")
+            prompt.append(f"{component.get_prompt(strategy)}\n")
         
         return "\n\n".join(prompt)

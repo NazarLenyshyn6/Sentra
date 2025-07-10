@@ -69,10 +69,10 @@ class BivariativeAnalysisComponent(Enum):
     Each represents a method for comparison, correlation, or aggregation.
     """
     
-    ...
+    PLACEHOLDER = auto()
     
 
-class OutlierDetectionComponent(Enum):
+class OutliersDetectionComponent(Enum):
     """
     Strategies for detecting outliers in numerical features.
     Each represents a statistical or model-based approach.

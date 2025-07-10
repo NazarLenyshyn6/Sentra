@@ -2,13 +2,13 @@
 
 
 from prompt_engine.registry.eda.data_ingestion import DataIngestionPromptRegistry
+from prompt_engine.registry.eda.outliers_detection import OutliersDetectionPromptRegistry
 from prompt_engine.registry.eda.type_handling import TypeHandlingPromptRegistry
 from prompt_engine.registry.eda.missing_values import MissingValuesPromptRegistry
 from prompt_engine.registry.eda.univariative_analysis import UnivariativeAnalysisPromptRegistry
 from prompt_engine.registry.eda.data_quality import DataQualityPromptRegistry
 from prompt_engine.registry.eda.target_analysis import TargetAnalysisPromptRegistry
 from prompt_engine.registry.eda.bivariative_analysis import BivariativeAnalysisPromptRegistry
-from prompt_engine.registry.eda.outlier_detection import OutlierDetectionPromptRegistry
 from prompt_engine.registry.eda.cardinality import CardinalityPromptRegistry
 from .base import (
     PromptTemplate, 
@@ -72,9 +72,9 @@ class OutlierDetectionAndCleanupTemplate(PromptTemplate):
     """
     _components_order: ComponentsOrder = [
         TypeHandlingPromptRegistry,           # ensure numeric before outlier detection
-        OutlierDetectionPromptRegistry,       # e.g., Z_SCORE
-        OutlierDetectionPromptRegistry,       # e.g., IQR
-        OutlierDetectionPromptRegistry,       # e.g., ISOLATION_FOREST
+        OutliersDetectionPromptRegistry,       # e.g., Z_SCORE
+        OutliersDetectionPromptRegistry,       # e.g., IQR
+        OutliersDetectionPromptRegistry,       # e.g., ISOLATION_FOREST
     ]
 
 
@@ -100,18 +100,6 @@ class TargetDistributionAndRelationshipTemplate(PromptTemplate):
         TargetAnalysisPromptRegistry,         # e.g., FEATURE_TARGET_RELATIONSHIP
     ]
 
-
-class VisualCorrelationAndInteractionTemplate(PromptTemplate):
-    """
-    Template: Explore univariate and bivariate relationships.
-    """
-    _components_order: ComponentsOrder = [
-        UnivariativeAnalysisPromptRegistry,   # e.g., DESCRIPTIVE_STATS
-        BivariativeAnalysisPromptRegistry,    # e.g., CORRELATION_MATRIX
-        BivariativeAnalysisPromptRegistry,    # e.g., SCATTER_PLOTS
-    ]
-
-
 class FeatureEngineeringStarterTemplate(PromptTemplate):
     """
     Template: Start preparing features via type fixes, cardinality checks, outlier handling.
@@ -119,7 +107,7 @@ class FeatureEngineeringStarterTemplate(PromptTemplate):
     _components_order: ComponentsOrder = [
         TypeHandlingPromptRegistry,           # e.g., CONVERT_OBJECT_TO_NUMERIC
         CardinalityPromptRegistry,            # e.g., DETECT_ID_LIKE_COLUMNS
-        OutlierDetectionPromptRegistry,       # e.g., Z_SCORE
+        OutliersDetectionPromptRegistry,       # e.g., Z_SCORE
     ]
 
 
@@ -154,20 +142,4 @@ class CleanAndDescribeTemplate(PromptTemplate):
         TypeHandlingPromptRegistry,           # e.g., CLEAN_STRINGS
         MissingValuesPromptRegistry,          # e.g., IMPUTE_MEDIAN
         UnivariativeAnalysisPromptRegistry,   # e.g., DESCRIPTIVE_STATS
-    ]
-
-
-class FullVisualEDAForModelingTemplate(PromptTemplate):
-    """
-    Template: Full pipeline before modeling — ingestion, cleanup, visual stats.
-    """
-    _components_order: ComponentsOrder = [
-        DataIngestionPromptRegistry,
-        TypeHandlingPromptRegistry,
-        MissingValuesPromptRegistry,
-        OutlierDetectionPromptRegistry,
-        CardinalityPromptRegistry,
-        UnivariativeAnalysisPromptRegistry,
-        BivariativeAnalysisPromptRegistry,
-        TargetAnalysisPromptRegistry,
     ]
