@@ -4,6 +4,7 @@ the prompt composer. It takes a strictly ordered list of strategies and generate
 dynamic prompt that will be used to answer the user’s question.
 """
 
+
 from typing import List
 
 from aiq.builder.function_info import FunctionInfo
@@ -12,17 +13,16 @@ from aiq.cli.register_workflow import register_function
 from aiq.builder.builder import Builder
 from prompt_engine.src.registry.orchestrator import Orchestrator
 
+
 class PromptComposerToolConfig(FunctionBaseConfig, name="compose_prompt"):
     """
     Configuration schema for the `compose_prompt` tool.
-
-    This defines the config interface for the prompt composition stage — the final and 
-    most important tool for building a fully dynamic prompt from selected strategy components.
 
     Inherits:
         FunctionBaseConfig: Base class for AIQ function tool configuration.
     """
     ...
+
 
 @register_function(config_type=PromptComposerToolConfig)
 async def compose_prompt(
@@ -36,19 +36,12 @@ async def compose_prompt(
         yield FunctionInfo.from_fn(
             _arun,
             description=(
-                "Use this tool to generate the final composed prompt once you have selected all the necessary strategies. "
-                "This is the last and most critical step in the dynamic prompt-building process.\n\n"
-                
-                "The input must be a Python `List[str]` containing the **IDs of all selected strategies**, arranged in the "
-                "**exact order** required to solve the user's question.\n\n"
-                
-                " This tool must **only be used after** all appropriate strategies have been chosen. Do not call it earlier.\n\n"
-                
-                " The **order of the strategy IDs matters greatly** — it must reflect the logical execution order. "
-                "**Any misordering or omission will break the workflow**, resulting in an invalid or misleading prompt.\n\n"
-                
-                " This step finalizes your entire reasoning and selection process. The resulting prompt is what the assistant will use "
-                "to generate its response. It ties together all logic blocks and defines how the task will be handled.\n\n"
+                "Use this tool to compose the final dynamic prompt after selecting all relevant strategies.\n\n"
+                "- Input: a Python `List[str]` of strategy IDs, in the **exact logical order** required.\n"
+                "- This tool must be called only **after all planning and strategy selection is complete**.\n"
+                "- The **order of strategies is critical**. Any misordering will result in a broken or invalid prompt.\n\n"
+                "The composed prompt is the final output of the planning process and will be used to answer the user’s question. "
+                "It integrates all selected components and determines the behavior of the resulting prompt."
             )
         )
     except GeneratorExit:

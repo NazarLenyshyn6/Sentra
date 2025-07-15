@@ -19,10 +19,10 @@ class AnthropicModelConfig(LLMBaseConfig, name="anthropic"):
     Configuration class for Anthropic LLM provider.
 
     Attributes:
-        anthropic_api_key (str | None): API key used to authenticate with Anthropic.
-        model (str | None): Name of the Anthropic-hosted model to use (e.g., "claude-3").
-        temperature (float): Sampling temperature for model output generation. Range: [0.0, 1.0].
-        max_tokens (int): Maximum number of tokens to generate in the response.
+        anthropic_api_key: API key used to authenticate with Anthropic.
+        model: Name of the Anthropic-hosted model to use (e.g., "claude-3").
+        temperature: Sampling temperature for model output generation. Range: [0.0, 1.0].
+        max_tokens: Maximum number of tokens to generate in the response.
     """
 
     model_config = ConfigDict(protected_namespaces=())
@@ -51,8 +51,8 @@ async def anthropic_llm(config: AnthropicModelConfig, builder: Builder):
     Registers Anthropic as a supported LLM provider.
 
     Args:
-        config (AnthropicModelConfig): Configuration for the Anthropic provider.
-        builder (Builder): Builder object used for workflow construction.
+        config: Configuration for the Anthropic provider.
+        builder: Builder object used for workflow construction.
 
     Yields:
         LLMProviderInfo: Metadata describing this LLM provider.

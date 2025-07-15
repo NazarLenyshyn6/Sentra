@@ -1,7 +1,14 @@
-""" 
-This module defines an asynchronous tool for AI agents to introspect the Prompt Engine's 
-registered pipelines. Agents can call this tool when they need to understand what ML 
-workflows are available in the system.
+"""
+This module defines asynchronous introspection tool for AI agents to discover all registered pipelines in the Prompt Engine.
+
+Agents use this tool when they need to plan prompt composition based on user intent. It returns a summary of all available
+ML pipelines (i.e., complete workflows) along with clear descriptions. This enables the agent to:
+
+- Identify which pipeline(s) best match the user’s question.
+- Combine pipelines if necessary.
+- Reject questions if no relevant pipeline is applicable.
+
+This tool is essential for reasoning and planning before composing dynamic prompts using the Prompt Engine.
 """
 
 
@@ -11,17 +18,16 @@ from aiq.cli.register_workflow import register_function
 from aiq.builder.builder import Builder
 from prompt_engine.src.registry.orchestrator import Orchestrator
 
+
 class GetAvailablePipelinesToolConfig(FunctionBaseConfig, name="get_available_pipelines"):
     """
     Configuration schema for the `get_available_pipelines` tool.
-
-    This defines the config interface for the pipeline introspection tool, enabling it
-    to be registered and used within the AIQ toolchain.
 
     Inherits:
         FunctionBaseConfig: Base class for AIQ function tool configuration.
     """
     ...
+
 
 @register_function(config_type=GetAvailablePipelinesToolConfig)
 async def get_available_pipelines(
@@ -30,21 +36,19 @@ async def get_available_pipelines(
     async def _arun(question: str) -> str:
         pipelines_summary = Orchestrator.get_pipelines_usage_summary()
         instructions = (
-            "Here is the list of all available pipelines. You must:\n\n"
-            "- Choose the most relevant pipeline(s) to the current user question.\n"
-            "- If one pipeline is not enough, combine multiple pipelines to fully answer the question.\n"
-            "- If the question is outside the scope of all pipelines, inform the user you cannot answer it "
-            "and only support questions related to the available workflows."
+            "Here is the list of all registered pipelines in the Prompt Engine.\n\n"
+            "Instructions:\n"
+            "- Select the pipeline(s) that are most relevant to the user's question.\n"
+            "- If no single pipeline fully matches, consider combining multiple pipelines.\n"
+            "- If none are applicable, respond that the question is outside your scope and only supported pipelines can be handled."
         )
         return f"{pipelines_summary}\n\n{instructions}"
     try:
         yield FunctionInfo.from_fn(_arun,
                                     description=(
-                                        "Use this tool when you need to know which pipelines are available."
-                                        "This tool will return all registered pipelines along with explanations for each, "
-                                        "so you can select the most suitable ones based on the current user's question. "
-                                        "It's especially useful when planning how to approach a task or deciding which ML "
-                                        "workflow to run in response to the user’s intent."
+                                        "Use this tool to retrieve all available ML pipelines in the Prompt Engine. "
+                                        "It helps you understand what pipelines exist so you can select the most appropriate ones "
+                                        "based on the user’s question. This tool is essential at the beginning of prompt planning."
                                         )
                                     )
     except GeneratorExit:

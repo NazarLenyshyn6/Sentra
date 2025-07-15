@@ -1,9 +1,12 @@
 """
-This module defines an asynchronous tool for AI agents to introspect the available strategies 
-within selected stages. Agents should call this tool after identifying the most relevant stages 
-in order to determine which fine-grained logic units (strategies) should be used to construct 
-the final prompt.
+This module defines an asynchronous tool for AI agents to introspect the available strategies
+within selected stages of a pipeline.
+
+Agents must call this tool *after selecting the most relevant stages*. It returns all available
+fine-grained logic units (strategies) within those stages, allowing the agent to choose the exact
+building blocks needed to construct the final dynamic prompt.
 """
+
 
 from typing import List
 
@@ -13,17 +16,16 @@ from aiq.cli.register_workflow import register_function
 from aiq.builder.builder import Builder
 from prompt_engine.src.registry.orchestrator import Orchestrator
 
+
 class GetAvailableStrategiesToolConfig(FunctionBaseConfig, name="get_available_strategies"):
     """
     Configuration schema for the `get_available_strategies` tool.
-
-    This defines the config interface for strategy-level introspection, enabling the AI agent 
-    to view all available strategy components within selected stages.
 
     Inherits:
         FunctionBaseConfig: Base class for AIQ function tool configuration.
     """
     ...
+
 
 @register_function(config_type=GetAvailableStrategiesToolConfig)
 async def get_available_strategies(
@@ -32,24 +34,27 @@ async def get_available_strategies(
     async def _arun(stages_id: List[str]) -> str:
         pipelines_summary = Orchestrator.get_stages_strategies_summary(stages_id)
         instructions = (
-            "These are the strategies defined within the selected stages. You must:\n\n"
-            "- Carefully examine each listed strategy and its purpose.\n"
-            "- Select only the strategies that are directly relevant to the current user question.\n"
-            "- Maintain the original stage order when choosing strategies.\n"
-            "- If a stage contains multiple strategies, combine only those that are necessary.\n"
-            "- The selected strategies will be composed in sequence to create the final dynamic prompt.\n\n"
+            "These are the strategies defined within the selected stages.\n\n"
+            "Instructions:\n"
+            "- Review each strategy and its description carefully.\n"
+            "- Select only the strategies directly relevant to solving the user’s question.\n"
+            "- Follow the original stage order when arranging selected strategies.\n"
+            "- If a stage contains multiple strategies, combine only those strictly necessary.\n"
+            "- The selected strategies will later be passed to the prompt composer in exact sequence."
+            "- If none of the strategies are applicable, respond that the question is outside your scope "
+            "and only supported pipelines, stages, and strategies can be handled.\n"
         )
         return f"{pipelines_summary}\n\n{instructions}"
     try:
         yield FunctionInfo.from_fn(_arun,
                                     description=(
-                                        "Use this tool after selecting the stages you want to work with. "
-                                        "It returns all available strategies within the given stages, each with descriptions. "
-                                        "Use this tool to identify the most suitable strategy components for the user's question. "
-                                        "This is a required step before composing the final prompt, as strategies define the atomic "
-                                        "logic blocks you will combine to create a fully customized solution."
-                                        "**Important:** Only call this tool *after* you've selected the most relevant stages "
-                                        "to solve the user's task. The input must be a Python list of stage IDs in the correct order."
+                                        "Use this tool after selecting the stages for the current task. "
+                                        "It retrieves all strategy components defined within those stages.\n\n"
+                                        "- Input: a Python `List[str]` of stage IDs (in logical order).\n"
+                                        "- Output: summaries of available strategies tied to those stages.\n"
+                                        "- This step is required before using the prompt composer tool, as strategies define "
+                                        "the concrete logic units used to dynamically answer the user's question.\n\n"
+                                        "**Important:** Only call this tool *after* selecting the most relevant stages for the task."
                                         )
                                     )
     except GeneratorExit:
