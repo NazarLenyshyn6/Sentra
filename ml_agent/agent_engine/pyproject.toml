@@ -1,0 +1,27 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools >= 64", "setuptools-scm>=8"]
+
+[tool.setuptools_scm]
+root = "../aiqtoolkit"
+fallback_version = "1.0.0"
+
+[project]
+name = "ml_agent_workflows"
+dynamic = ["version"]
+dependencies = [
+  "aiqtoolkit[langchain]",
+  "aiqtoolkit[telemetry]",
+  "langchain_anthropic",
+  "kaleido",
+]
+requires-python = ">=3.11,<3.13"
+description = "Custom AIQ Toolkit Workflow"
+classifiers = ["Programming Language :: Python"]
+
+[tool.uv.sources]
+aiqtoolkit = { path = "../../aiqtoolkit", editable = true }
+
+[project.entry-points.'aiq.components']
+anthropic_llm = "llm_providers.anthropic.register"
+agent_workflow = "agent_workflow.register"
